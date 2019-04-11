@@ -188,7 +188,7 @@ def sanitize_vptr_flag(compiler, flags):
 
 def adjust_visibility_flags(compiler, flags):
     # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80947
-    flags = flags + ['-fvisibility=hidden', '-std=gnu++1y', '-Werror=attributes']
+    flags = flags + ['-fvisibility=hidden', '-fuse-ld=gold', '-std=gnu++1y', '-Werror=attributes']
     if not try_compile(compiler, flags=flags, source=textwrap.dedent('''
             template <class T>
             class MyClass  {
@@ -228,18 +228,18 @@ def configure_fmt(mode, cxx='g++', cc='gcc'):
 
 modes = {
     'debug': {
-        'sanitize': '-fsanitize=address -fsanitize=leak -fsanitize=undefined',
+        'sanitize': '-fsanitize=address -fuse-ld=gold -fsanitize=leak -fsanitize=undefined',
         'sanitize_libs': '-lasan -lubsan',
         'opt': '-O0 -DSEASTAR_DEBUG -DSEASTAR_DEBUG_SHARED_PTR -DSEASTAR_DEFAULT_ALLOCATOR -DSEASTAR_THREAD_STACK_GUARDS -DSEASTAR_NO_EXCEPTION_HACK -DSEASTAR_SHUFFLE_TASK_QUEUE',
         'libs': '',
-        'cares_opts': '-DCARES_STATIC=ON -DCARES_SHARED=OFF -DCMAKE_BUILD_TYPE=Debug',
+        'cares_opts': '-fuse-ld=gold -DCARES_STATIC=ON -DCARES_SHARED=OFF -DCMAKE_BUILD_TYPE=Debug',
     },
     'release': {
         'sanitize': '',
         'sanitize_libs': '',
         'opt': '-O2',
         'libs': '',
-        'cares_opts': '-DCARES_STATIC=ON -DCARES_SHARED=OFF -DCMAKE_BUILD_TYPE=Release',
+        'cares_opts': '-fuse-ld=gold -DCARES_STATIC=ON -DCARES_SHARED=OFF -DCMAKE_BUILD_TYPE=Release',
     },
 }
 
@@ -676,7 +676,7 @@ if args.with_osv:
     args.so = True
     args.hwloc = False
     args.user_cflags = (args.user_cflags +
-        ' -DSEASTAR_DEFAULT_ALLOCATOR -fvisibility=default -DHAVE_OSV -I' +
+        ' -DSEASTAR_DEFAULT_ALLOCATOR -fvisibility=default -fuse-ld=gold -DHAVE_OSV -I' +
         args.with_osv + ' -I' + args.with_osv + '/include -I' +
         args.with_osv + '/arch/x64')
 
@@ -911,7 +911,7 @@ with open(buildfile, 'w') as f:
         full_builddir = {srcdir}/$builddir
         cxx = {cxx}
         # we disable _FORTIFY_SOURCE because it generates false positives with longjmp() (core/thread.cc)
-        cxxflags = -std={cpp_dialect} {dbgflag} {fpie} -Wall -Werror -Wno-error=deprecated-declarations -fvisibility=hidden {visibility_flags} -pthread -I{srcdir} -U_FORTIFY_SOURCE {user_cflags} {warnings} {defines}
+        cxxflags = -std={cpp_dialect} {dbgflag} {fpie} -Wall -Werror -Wno-error=deprecated-declarations -fuse-ld=gold -fvisibility=hidden {visibility_flags} -pthread -I{srcdir} -U_FORTIFY_SOURCE {user_cflags} {warnings} {defines}
         ldflags = {dbgflag} -Wl,--no-as-needed {static} {pie} -fvisibility=hidden {visibility_flags} -pthread {user_ldflags}
         libs = {libs}
         pool link_pool

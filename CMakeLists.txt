@@ -533,6 +533,7 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   target_compile_options (seastar PUBLIC
     -fsanitize=address
     -fsanitize=leak
+    -fuse-ld=gold
     -fsanitize=undefined)
 
   target_compile_definitions (seastar PUBLIC
